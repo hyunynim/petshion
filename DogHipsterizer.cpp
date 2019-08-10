@@ -27,7 +27,7 @@ using net_type = loss_mmod<con<1, 9, 9, 1, 1, rcon5<rcon5<rcon5<downsampler<inpu
 */
 void CV2Matrix(matrix<rgb_alpha_pixel> & des) {
 	Mat img = imread("001.png", IMREAD_UNCHANGED);
-	resize(img, img, Size(des.nc(), des.nr()), 0, 0, 1);\
+	resize(img, img, Size(des.nc(), des.nr()), 0, 0, 1);
 	auto it = des.begin();
 	for (int i = 0; i < img.rows; ++i) {
 		for (int j = 0; j < img.cols; ++j) {
@@ -39,6 +39,7 @@ void CV2Matrix(matrix<rgb_alpha_pixel> & des) {
 			++it;
 		}
 	}
+	img.release();
 }
 int main(int argc, char** argv) try {
 	if (argc < 3) {
