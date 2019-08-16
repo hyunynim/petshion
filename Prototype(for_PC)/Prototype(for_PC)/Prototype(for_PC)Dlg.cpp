@@ -28,8 +28,9 @@ void CPrototypeforPCDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_FRAMEPERMS, m_framePerMs);
-	DDV_MinMaxInt(pDX, m_framePerMs, 10, 5000);
-//	DDX_Text(pDX, IDC_TARGET_IMAGE_DIR, m_targetImageDir);
+	DDV_MinMaxInt(pDX, m_framePerMs, 1, 15000);
+	//	DDX_Text(pDX, IDC_TARGET_IMAGE_DIR, m_targetImageDir);
+	DDX_Control(pDX, IDC_GLASSES_LIST, m_glassesList);
 }
 
 BEGIN_MESSAGE_MAP(CPrototypeforPCDlg, CDialogEx)
@@ -58,7 +59,7 @@ BOOL CPrototypeforPCDlg::OnInitDialog()
 	}
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 	initModel();
-
+	initGlassesList();
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
 
@@ -199,4 +200,25 @@ void CPrototypeforPCDlg::OnBnClickedCancel()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	KillTimer(FRAME_TIMER);
 	CDialogEx::OnCancel();
+}
+
+void CPrototypeforPCDlg::initGlassesList() {
+	char name[1010];
+	CRect r;
+	m_glassesList.GetWindowRect(&r);
+	m_glassesList.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT);
+	m_glassesList.InsertColumn(0, "파일명", r.Width());
+	system("cd ");
+	system("dir glasses /b >> ./glasses/list.txt");
+	FILE * fp = freopen("./glasses/list.txt", "r", stdin);
+	while (~scanf("%s", name)) {
+		glassesImage.push_back(name);
+		if (glassesImage.size() && glassesImage.back().back() != 'g')
+			glassesImage.pop_back();
+		else
+			m_glassesList.InsertItem(glassesImage.size() - 1, name);
+	}
+	fclose(fp);
+	system("del .\\glasses\\list.txt");
+	UpdateData(FALSE);
 }

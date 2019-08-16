@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include<iostream>
+#include<bits/stdc++.h>
 #include<dlib/dnn.h>
 #include<dlib/data_io.h>
 #include<dlib/image_processing.h>
@@ -65,12 +65,13 @@ public:
 	image_window win_hipster;
 	array2d<rgb_pixel> gl;
 	matrix<rgb_pixel> img;
+	std::vector<string> glassesImage;
 
 	void initModel(); 
 	void CPrototypeforPCDlg::refreshFrame();
 	void hipsterize();
 	void imageLoad();
-	
+	void initGlassesList();
 	afx_msg void OnBnClickedOk();
 	VideoCapture capture;
 	Mat frame;
@@ -79,4 +80,5 @@ public:
 	CString m_targetImageDir;
 //	afx_msg void OnBnClickedFileDlg();
 	afx_msg void OnBnClickedCancel();
+	CListCtrl m_glassesList;
 };
