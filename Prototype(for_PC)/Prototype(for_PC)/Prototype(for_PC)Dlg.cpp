@@ -130,11 +130,8 @@ void CPrototypeforPCDlg::refreshFrame() {
 }
 void CPrototypeforPCDlg::hipsterize() {
 	auto dets = net(img);
-//	win_wireframe.clear_overlay();
-//	win_wireframe.set_image(img);
 	// 강아지 얼굴의 landmark 찾아와서 선으로 이어주는 작업
 	// shape_predictor가 찾아줌
-	std::vector<image_window::overlay_line> lines;
 	for (auto&& d : dets) {
 		// Landmark 찾기
 		auto shape = sp(img, d.rect);
@@ -174,18 +171,7 @@ void CPrototypeforPCDlg::hipsterize() {
 					assign_pixel(img(p.y(), p.x()), mustache(r, c));
 			}
 		}
-
-
-		// Landmark lines
-		lines.push_back(image_window::overlay_line(leye, nose, color));
-		lines.push_back(image_window::overlay_line(nose, reye, color));
-		lines.push_back(image_window::overlay_line(reye, leye, color));
-		lines.push_back(image_window::overlay_line(reye, rear, color));
-		lines.push_back(image_window::overlay_line(rear, top, color));
-		lines.push_back(image_window::overlay_line(top, lear, color));
-		lines.push_back(image_window::overlay_line(lear, leye, color));
 		}
-//	win_wireframe.add_overlay(lines);
 	win_hipster.set_image(img);
 }
 void CPrototypeforPCDlg::imageLoad() {
@@ -207,19 +193,6 @@ void CPrototypeforPCDlg::initModel() {
 	pyramid_up(glasses);
 	pyramid_up(mustache);
 }
-/*
-void CPrototypeforPCDlg::OnBnClickedFileDlg()
-{
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	static TCHAR BASED_CODE szFilter[] = "이미지 파일(*.BMP) | *.BMP";
-	CFileDialog dlg(TRUE, "*.bmp", "image", OFN_HIDEREADONLY, szFilter);
-	if (IDOK == dlg.DoModal()) {
-		m_targetImageDir = dlg.GetPathName();
-		UpdateData(FALSE);
-		imageLoad();
-	}
-}
-*/
 
 void CPrototypeforPCDlg::OnBnClickedCancel()
 {
