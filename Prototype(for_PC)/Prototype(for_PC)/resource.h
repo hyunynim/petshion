@@ -2,10 +2,11 @@
 // Microsoft Visual C++에서 생성한 포함 파일입니다.
 // PrototypeforPC.rc에서 사용되고 있습니다.
 //
+#define ID_GLASSES_PREVIEW              3
+#define ID_GLASSES_SET                  4
 #define IDD_PROTOTYPEFOR_PC_DIALOG      102
 #define IDR_MAINFRAME                   128
 #define IDC_FRAMEPERMS                  1001
-#define IDC_LIST1                       1003
 #define IDC_GLASSES_LIST                1003
 
 // Next default values for new objects

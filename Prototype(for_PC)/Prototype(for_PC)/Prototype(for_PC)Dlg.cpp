@@ -40,6 +40,8 @@ BEGIN_MESSAGE_MAP(CPrototypeforPCDlg, CDialogEx)
 	ON_WM_TIMER()
 //	ON_BN_CLICKED(IDC_FILE_DLG, &CPrototypeforPCDlg::OnBnClickedFileDlg)
 ON_BN_CLICKED(IDCANCEL, &CPrototypeforPCDlg::OnBnClickedCancel)
+ON_BN_CLICKED(ID_GLASSES_PREVIEW, &CPrototypeforPCDlg::OnBnClickedGlassesPreview)
+ON_BN_CLICKED(ID_GLASSES_SET, &CPrototypeforPCDlg::OnBnClickedGlassesSet)
 END_MESSAGE_MAP()
 
 
@@ -221,4 +223,22 @@ void CPrototypeforPCDlg::initGlassesList() {
 	fclose(fp);
 	system("del .\\glasses\\list.txt");
 	UpdateData(FALSE);
+}
+
+void CPrototypeforPCDlg::OnBnClickedGlassesPreview()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	auto cur = m_glassesList.GetFirstSelectedItemPosition();
+	int idx = m_glassesList.GetNextSelectedItem(cur);
+	char path[1010];
+	sprintf(path, "./glasses/%s", glassesImage[idx].c_str());
+	Mat tmp = imread(path, IMREAD_UNCHANGED);
+	imshow("Glasses Preview", tmp);
+	waitKey(0);
+}
+
+
+void CPrototypeforPCDlg::OnBnClickedGlassesSet()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
