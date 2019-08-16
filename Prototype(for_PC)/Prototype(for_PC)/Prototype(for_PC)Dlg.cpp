@@ -42,6 +42,7 @@ BEGIN_MESSAGE_MAP(CPrototypeforPCDlg, CDialogEx)
 ON_BN_CLICKED(IDCANCEL, &CPrototypeforPCDlg::OnBnClickedCancel)
 ON_BN_CLICKED(ID_GLASSES_PREVIEW, &CPrototypeforPCDlg::OnBnClickedGlassesPreview)
 ON_BN_CLICKED(ID_GLASSES_SET, &CPrototypeforPCDlg::OnBnClickedGlassesSet)
+ON_BN_CLICKED(ID_GLASSES_SET_DEFAULT, &CPrototypeforPCDlg::OnBnClickedGlassesSetDefault)
 END_MESSAGE_MAP()
 
 
@@ -235,10 +236,27 @@ void CPrototypeforPCDlg::OnBnClickedGlassesPreview()
 	Mat tmp = imread(path, IMREAD_UNCHANGED);
 	imshow("Glasses Preview", tmp);
 	waitKey(0);
+	tmp.release();
 }
 
 
 void CPrototypeforPCDlg::OnBnClickedGlassesSet()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	auto cur = m_glassesList.GetFirstSelectedItemPosition();
+	int idx = m_glassesList.GetNextSelectedItem(cur);
+	char path[1010];
+	sprintf(path, "./glasses/%s", glassesImage[idx].c_str());
+	Mat tmp = imread(path, IMREAD_UNCHANGED);
+	cvtColor(tmp, tmp, COLOR_BGR2RGBA);
+	cv_image<rgb_alpha_pixel> res(tmp);
+	assign_image(glasses, res);
+	tmp.release();
+}
+
+
+void CPrototypeforPCDlg::OnBnClickedGlassesSetDefault()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	initModel();
 }

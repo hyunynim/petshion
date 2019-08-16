@@ -82,4 +82,6 @@ public:
 	afx_msg void OnBnClickedCancel();
 	CListCtrl m_glassesList;
 	afx_msg void OnBnClickedGlassesPreview();
+	afx_msg void OnBnClickedGlassesSet();
+	afx_msg void OnBnClickedGlassesSetDefault();
 };

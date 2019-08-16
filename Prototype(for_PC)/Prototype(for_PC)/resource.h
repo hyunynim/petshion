@@ -4,6 +4,8 @@
 //
 #define ID_GLASSES_PREVIEW              3
 #define ID_GLASSES_SET                  4
+#define ID_GLASSES_SET_DEGAULT          5
+#define ID_GLASSES_SET_DEFAULT          5
 #define IDD_PROTOTYPEFOR_PC_DIALOG      102
 #define IDR_MAINFRAME                   128
 #define IDC_FRAMEPERMS                  1001
