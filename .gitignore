@@ -44,3 +44,6 @@
 *.pdb
 *.tlog
 *.ipdb
+Prototype(for_PC)/.vs/Prototype(for_PC)/v15/.suo
+*.idb
+*.dat
