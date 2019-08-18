@@ -2,7 +2,7 @@ Petshion
 ===
 팀: Was it a cat I saw?
 ---
-# prototype
+# prototype(C++ with VS 2017)
 >## install
 >>1. Visual Studio 2017
 >>2. CUDA toolkit 10.0
