@@ -3,7 +3,12 @@ Petshion
 팀: Was it a cat I saw?
 ---
 # prototype
->
+>## install
+>>1. Visual Studio 2017
+>>2. CUDA toolkit 10.0
+>>3. CuDNN 7.6.1 (for CUDA 10.0)
+>>4. OpenCV 4.1.0
+>>5. DLIB 19.17
 
 # python
 > 
