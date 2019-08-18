@@ -10,12 +10,13 @@ Petshion
 >>4. OpenCV 4.1.1
 >>5. DLIB 19.17
 >## start
->> MFC - Dialog based project
->> Import Library & include folder
->> Select mode(camera, image, video, desktop window)
->> Set frame refresh delay
->> Click "ON"
->> It may work with all extension(test file: *.jpg, *.bmp, *.png, *.avi, *.wav, *.mp4)
+>> 1. MFC - Dialog based project
+>> 2. Import Library & include folder
+>> 3. Compile
+>> 4. Select mode(camera, image, video, desktop window)
+>> 5. Set frame refresh delay
+>> 6. Click "ON"
+>> *It may work with all extension(test file: *.jpg, *.bmp, *.png, *.avi, *.wav, *.mp4)
 
 # python
 > 
