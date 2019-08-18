@@ -11,7 +11,7 @@ Petshion
 >>5. DLIB 19.17
 >## start
 >> 1. MFC - Dialog based project
->> 2. Import Library & include folder
+>> 2. Import Library & include folder (OpenCV, DLIB, CUDA SDK, CuDNN)
 >> 3. Compile
 >> 4. Select mode(camera, image, video, desktop window)
 >> 5. Set frame refresh delay
