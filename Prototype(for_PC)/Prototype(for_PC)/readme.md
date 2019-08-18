@@ -15,8 +15,7 @@ Petshion
 >> 3. Compile
 >> 4. Select mode(camera, image, video, desktop window)
 >> 5. Set frame refresh delay
->> 6. Click "ON"
->> *It may work with all extension(test file: *.jpg, *.bmp, *.png, *.avi, *.wav, *.mp4)
+>> 6. Click "ON" (It may work with all extension(test file: *.jpg, *.bmp, *.png, *.avi, *.wav, *.mp4))
 
 # python
 > 
