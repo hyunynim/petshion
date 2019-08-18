@@ -7,8 +7,15 @@ Petshion
 >>1. Visual Studio 2017
 >>2. CUDA toolkit 10.0
 >>3. CuDNN 7.6.1 (for CUDA 10.0)
->>4. OpenCV 4.1.0
+>>4. OpenCV 4.1.1
 >>5. DLIB 19.17
+>## start
+>> MFC - Dialog based project
+>> Import Library & include folder
+>> Select mode(camera, image, video, desktop window)
+>> Set frame refresh delay
+>> Click "ON"
+>> It may work with all extension(test file: *.jpg, *.bmp, *.png, *.avi, *.wav, *.mp4)
 
 # python
 > 
