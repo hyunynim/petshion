@@ -61,12 +61,18 @@ public:
 	shape_predictor sp;
 	matrix<rgb_alpha_pixel> glasses, mustache;
 	rgb_alpha_pixel a;
-//	image_window win_wireframe, win_hipster;
-	image_window win_hipster;
+	image_window win_wireframe, win_hipster;
+//	image_window win_hipster;
 	array2d<rgb_pixel> gl;
 	matrix<rgb_pixel> img;
 	std::vector<string> glassesImage;
+	bool cameraInit = 0;
+	bool videoInit = 0;
+	bool imageInit = 0;
 
+	void cameraInitialize();
+	void videoInitialize();
+	void imageInitialize();
 	void initModel(); 
 	void CPrototypeforPCDlg::refreshFrame();
 	void hipsterize();
@@ -84,4 +90,10 @@ public:
 	afx_msg void OnBnClickedGlassesPreview();
 	afx_msg void OnBnClickedGlassesSet();
 	afx_msg void OnBnClickedGlassesSetDefault();
+	CString m_sourceFilePath;
+	BOOL m_sourceCamera;
+	BOOL m_sourceImage;
+	BOOL m_sourceVideo;
+	afx_msg void OnBnClickedSourceFileDlg();
+	afx_msg void OnBnClickedExit();
 };

@@ -18,8 +18,12 @@
 
 CPrototypeforPCDlg::CPrototypeforPCDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_PROTOTYPEFOR_PC_DIALOG, pParent)
-	, m_framePerMs(0)
+	, m_framePerMs(1)
 	, m_targetImageDir(_T(""))
+	, m_sourceFilePath(_T(""))
+	, m_sourceCamera(FALSE)
+	, m_sourceImage(FALSE)
+	, m_sourceVideo(FALSE)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -31,6 +35,10 @@ void CPrototypeforPCDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxInt(pDX, m_framePerMs, 1, 15000);
 	//	DDX_Text(pDX, IDC_TARGET_IMAGE_DIR, m_targetImageDir);
 	DDX_Control(pDX, IDC_GLASSES_LIST, m_glassesList);
+	DDX_Text(pDX, IDC_SOURCE_FILE_PATH, m_sourceFilePath);
+	DDX_Radio(pDX, IDC_SOURCE_CAMERA, m_sourceCamera);
+	DDX_Radio(pDX, IDC_SOURCE_IMAGE, m_sourceImage);
+	DDX_Radio(pDX, IDC_SOURCE_VIDEO, m_sourceVideo);
 }
 
 BEGIN_MESSAGE_MAP(CPrototypeforPCDlg, CDialogEx)
@@ -38,11 +46,12 @@ BEGIN_MESSAGE_MAP(CPrototypeforPCDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDOK, &CPrototypeforPCDlg::OnBnClickedOk)
 	ON_WM_TIMER()
-//	ON_BN_CLICKED(IDC_FILE_DLG, &CPrototypeforPCDlg::OnBnClickedFileDlg)
 ON_BN_CLICKED(IDCANCEL, &CPrototypeforPCDlg::OnBnClickedCancel)
 ON_BN_CLICKED(ID_GLASSES_PREVIEW, &CPrototypeforPCDlg::OnBnClickedGlassesPreview)
 ON_BN_CLICKED(ID_GLASSES_SET, &CPrototypeforPCDlg::OnBnClickedGlassesSet)
 ON_BN_CLICKED(ID_GLASSES_SET_DEFAULT, &CPrototypeforPCDlg::OnBnClickedGlassesSetDefault)
+ON_BN_CLICKED(IDC_SOURCE_FILE_DLG, &CPrototypeforPCDlg::OnBnClickedSourceFileDlg)
+ON_BN_CLICKED(IDC_EXIT, &CPrototypeforPCDlg::OnBnClickedExit)
 END_MESSAGE_MAP()
 
 
@@ -56,10 +65,6 @@ BOOL CPrototypeforPCDlg::OnInitDialog()
 	//  프레임워크가 이 작업을 자동으로 수행합니다.
 	SetIcon(m_hIcon, TRUE);			// 큰 아이콘을 설정합니다.
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
-	if (!capture.open(0)) {
-		MessageBox("Camera initialize fail!");
-		return 1;
-	}
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 	initModel();
 	initGlassesList();
@@ -69,7 +74,37 @@ BOOL CPrototypeforPCDlg::OnInitDialog()
 // 대화 상자에 최소화 단추를 추가할 경우 아이콘을 그리려면
 //  아래 코드가 필요합니다.  문서/뷰 모델을 사용하는 MFC 응용 프로그램의 경우에는
 //  프레임워크에서 이 작업을 자동으로 수행합니다.
-
+void CPrototypeforPCDlg::cameraInitialize() {
+	if (!capture.open(0)) {
+		MessageBox("Camera initialize fail!");
+		return;
+	}
+	imageInit = videoInit = 0;
+	cameraInit = 1;
+}
+void CPrototypeforPCDlg::videoInitialize() {
+	UpdateData(TRUE);
+	char path[1010];
+	sprintf(path, "%s", m_sourceFilePath);
+	if (!capture.open(path)) {
+		MessageBox("Video initialize fail!");
+		return;
+	}
+	imageInit = cameraInit = 0;
+	videoInit = 1;
+}
+void CPrototypeforPCDlg::imageInitialize() {
+	UpdateData(TRUE);
+	char path[1010];
+	sprintf(path, "%s", m_sourceFilePath);
+	frame = imread(path);
+	if (frame.empty()) {
+		MessageBox("Image initialize fail!");
+		return;
+	}
+	cameraInit = videoInit = 0;
+	imageInit = 1;
+}
 void CPrototypeforPCDlg::OnPaint()
 {
 	if (IsIconic())
@@ -109,6 +144,8 @@ void CPrototypeforPCDlg::OnBnClickedOk()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	UpdateData(TRUE);
 	SetTimer(FRAME_TIMER, m_framePerMs, 0);
+	if (m_sourceImage)
+		KillTimer(FRAME_TIMER);
 //	CDialogEx::OnOK();
 }
 
@@ -126,8 +163,15 @@ void CPrototypeforPCDlg::OnTimer(UINT_PTR nIDEvent)
 }
 
 void CPrototypeforPCDlg::refreshFrame() {
-	capture >> frame;
-	imshow("Camera1", frame);
+	if (m_sourceCamera && !cameraInit)
+		cameraInitialize();
+	if (m_sourceVideo && !videoInit)
+		videoInitialize();
+	if (m_sourceImage && !imageInit)
+		imageInitialize();
+	if (m_sourceCamera || m_sourceVideo)
+		capture >> frame;
+	imshow("Source", frame);
 	cvtColor(frame, frame, COLOR_BGR2RGB);
 	cv_image<rgb_pixel> tmp(frame);
 	assign_image(img, tmp);
@@ -136,6 +180,9 @@ void CPrototypeforPCDlg::hipsterize() {
 	auto dets = net(img);
 	// 강아지 얼굴의 landmark 찾아와서 선으로 이어주는 작업
 	// shape_predictor가 찾아줌
+	win_wireframe.clear_overlay();
+	win_wireframe.set_image(img);
+	std::vector<image_window::overlay_line> lines;
 	for (auto&& d : dets) {
 		// Landmark 찾기
 		auto shape = sp(img, d.rect);
@@ -175,7 +222,17 @@ void CPrototypeforPCDlg::hipsterize() {
 					assign_pixel(img(p.y(), p.x()), mustache(r, c));
 			}
 		}
+
+		// Landmark lines
+		lines.push_back(image_window::overlay_line(leye, nose, color));
+		lines.push_back(image_window::overlay_line(nose, reye, color));
+		lines.push_back(image_window::overlay_line(reye, leye, color));
+		lines.push_back(image_window::overlay_line(reye, rear, color));
+		lines.push_back(image_window::overlay_line(rear, top, color));
+		lines.push_back(image_window::overlay_line(top, lear, color));
+		lines.push_back(image_window::overlay_line(lear, leye, color));
 		}
+	win_wireframe.add_overlay(lines);
 	win_hipster.set_image(img);
 }
 void CPrototypeforPCDlg::imageLoad() {
@@ -202,7 +259,7 @@ void CPrototypeforPCDlg::OnBnClickedCancel()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	KillTimer(FRAME_TIMER);
-	CDialogEx::OnCancel();
+//	CDialogEx::OnCancel();
 }
 
 void CPrototypeforPCDlg::initGlassesList() {
@@ -259,4 +316,24 @@ void CPrototypeforPCDlg::OnBnClickedGlassesSetDefault()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	initModel();
+}
+
+
+void CPrototypeforPCDlg::OnBnClickedSourceFileDlg()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	UpdateData(TRUE);
+	static TCHAR BASED_CODE szFilter[] = "이미지 파일(*.BMP) | *.BMP;*.bmp |모든파일(*.*)|*.*||";
+	CFileDialog dlg(TRUE, "*.png", "image", OFN_HIDEREADONLY, szFilter);
+	if (IDOK == dlg.DoModal()) {
+		m_sourceFilePath = dlg.GetPathName();
+		UpdateData(FALSE);
+	}
+}
+
+
+void CPrototypeforPCDlg::OnBnClickedExit()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	exit(0);
 }
