@@ -15,8 +15,12 @@
 #define IDC_SOURCE_VIDEO                1006
 #define IDC_SOURCE_FILE_PATH            1007
 #define IDC_SOURCE_FILE_DLG             1008
-#define IDC_BUTTON2                     1009
 #define IDC_EXIT                        1009
+#define IDC_DESKTOP_POS_X               1011
+#define IDC_DESKTOP_POS_Y               1012
+#define IDC_DESKTOP_SIZE_X              1013
+#define IDC_DESKTOP_SIZE_Y              1014
+#define IDC_DESKTOP_WINDOW_APPLY        1015
 
 // Next default values for new objects
 // 
@@ -24,7 +28,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        130
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1010
+#define _APS_NEXT_CONTROL_VALUE         1017
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -58,6 +58,7 @@ public:
 
 	const char * modelName = "mmod_dog_hipsterizer.dat";
 	//Var
+	HWND hwndDesktop;
 	shape_predictor sp;
 	matrix<rgb_alpha_pixel> glasses, mustache;
 	rgb_alpha_pixel a;
@@ -78,6 +79,7 @@ public:
 	void hipsterize();
 	void imageLoad();
 	void initGlassesList();
+	Mat hwnd2mat(HWND hwnd);
 	afx_msg void OnBnClickedOk();
 	VideoCapture capture;
 	Mat frame;
@@ -96,4 +98,15 @@ public:
 	BOOL m_sourceVideo;
 	afx_msg void OnBnClickedSourceFileDlg();
 	afx_msg void OnBnClickedExit();
+	afx_msg void OnEnChangeEdit2();
+	int m_posX;
+	int m_posY;
+	int m_sizeX;
+	int m_sizeY;
+	BOOL m_desktopWindow;
+	afx_msg void OnBnClickedDesktopWindowApply();
+	BOOL m_sourceDesktopWindow;
+	afx_msg void OnBnClickedSourceCamera();
+	afx_msg void OnBnClickedSourceImage();
+	afx_msg void OnBnClickedSourceVideo();
 };

@@ -24,6 +24,11 @@ CPrototypeforPCDlg::CPrototypeforPCDlg(CWnd* pParent /*=nullptr*/)
 	, m_sourceCamera(FALSE)
 	, m_sourceImage(FALSE)
 	, m_sourceVideo(FALSE)
+	, hwndDesktop(::GetDesktopWindow())
+	, m_posX(10)
+	, m_posY(200)
+	, m_sizeX(900)
+	, m_sizeY(500)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -39,6 +44,10 @@ void CPrototypeforPCDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Radio(pDX, IDC_SOURCE_CAMERA, m_sourceCamera);
 	DDX_Radio(pDX, IDC_SOURCE_IMAGE, m_sourceImage);
 	DDX_Radio(pDX, IDC_SOURCE_VIDEO, m_sourceVideo);
+	DDX_Text(pDX, IDC_DESKTOP_POS_X, m_posX);
+	DDX_Text(pDX, IDC_DESKTOP_POS_Y, m_posY);
+	DDX_Text(pDX, IDC_DESKTOP_SIZE_X, m_sizeX);
+	DDX_Text(pDX, IDC_DESKTOP_SIZE_Y, m_sizeY);
 }
 
 BEGIN_MESSAGE_MAP(CPrototypeforPCDlg, CDialogEx)
@@ -52,6 +61,10 @@ ON_BN_CLICKED(ID_GLASSES_SET, &CPrototypeforPCDlg::OnBnClickedGlassesSet)
 ON_BN_CLICKED(ID_GLASSES_SET_DEFAULT, &CPrototypeforPCDlg::OnBnClickedGlassesSetDefault)
 ON_BN_CLICKED(IDC_SOURCE_FILE_DLG, &CPrototypeforPCDlg::OnBnClickedSourceFileDlg)
 ON_BN_CLICKED(IDC_EXIT, &CPrototypeforPCDlg::OnBnClickedExit)
+ON_BN_CLICKED(IDC_DESKTOP_WINDOW_APPLY, &CPrototypeforPCDlg::OnBnClickedDesktopWindowApply)
+ON_BN_CLICKED(IDC_SOURCE_CAMERA, &CPrototypeforPCDlg::OnBnClickedSourceCamera)
+ON_BN_CLICKED(IDC_SOURCE_IMAGE, &CPrototypeforPCDlg::OnBnClickedSourceImage)
+ON_BN_CLICKED(IDC_SOURCE_VIDEO, &CPrototypeforPCDlg::OnBnClickedSourceVideo)
 END_MESSAGE_MAP()
 
 
@@ -77,6 +90,7 @@ BOOL CPrototypeforPCDlg::OnInitDialog()
 void CPrototypeforPCDlg::cameraInitialize() {
 	if (!capture.open(0)) {
 		MessageBox("Camera initialize fail!");
+		KillTimer(FRAME_TIMER);
 		return;
 	}
 	imageInit = videoInit = 0;
@@ -88,6 +102,7 @@ void CPrototypeforPCDlg::videoInitialize() {
 	sprintf(path, "%s", m_sourceFilePath);
 	if (!capture.open(path)) {
 		MessageBox("Video initialize fail!");
+		KillTimer(FRAME_TIMER);
 		return;
 	}
 	imageInit = cameraInit = 0;
@@ -100,6 +115,7 @@ void CPrototypeforPCDlg::imageInitialize() {
 	frame = imread(path);
 	if (frame.empty()) {
 		MessageBox("Image initialize fail!");
+		KillTimer(FRAME_TIMER);
 		return;
 	}
 	cameraInit = videoInit = 0;
@@ -142,7 +158,7 @@ HCURSOR CPrototypeforPCDlg::OnQueryDragIcon()
 void CPrototypeforPCDlg::OnBnClickedOk()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	UpdateData(TRUE);
+//	UpdateData(TRUE);
 	SetTimer(FRAME_TIMER, m_framePerMs, 0);
 	if (m_sourceImage)
 		KillTimer(FRAME_TIMER);
@@ -169,8 +185,14 @@ void CPrototypeforPCDlg::refreshFrame() {
 		videoInitialize();
 	if (m_sourceImage && !imageInit)
 		imageInitialize();
+
 	if (m_sourceCamera || m_sourceVideo)
 		capture >> frame;
+	else if (m_sourceDesktopWindow) {
+		Mat tmp = hwnd2mat(hwndDesktop);
+		frame = tmp(Range(m_posY, m_posY + m_sizeY), Range(m_posX, m_posX + m_sizeX));
+		tmp.release();
+	}
 	imshow("Source", frame);
 	cvtColor(frame, frame, COLOR_BGR2RGB);
 	cv_image<rgb_pixel> tmp(frame);
@@ -259,6 +281,7 @@ void CPrototypeforPCDlg::OnBnClickedCancel()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	KillTimer(FRAME_TIMER);
+	capture.release();
 //	CDialogEx::OnCancel();
 }
 
@@ -336,4 +359,107 @@ void CPrototypeforPCDlg::OnBnClickedExit()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	exit(0);
+}
+
+Mat CPrototypeforPCDlg::hwnd2mat(HWND hwnd) {
+	HDC hwindowDC, hwindowCompatibleDC;
+
+	int height, width, srcheight, srcwidth;
+	HBITMAP hbwindow;
+	Mat src;
+	BITMAPINFOHEADER  bi;
+
+	hwindowDC = ::GetDC(hwnd);
+	hwindowCompatibleDC = CreateCompatibleDC(hwindowDC);
+	SetStretchBltMode(hwindowCompatibleDC, COLORONCOLOR);
+
+	RECT windowsize;    // get the height and width of the screen
+	::GetClientRect(hwnd, &windowsize);
+
+	srcheight = windowsize.bottom;
+	srcwidth = windowsize.right;
+	height = windowsize.bottom / 1;  //change this to whatever size you want to resize to
+	width = windowsize.right / 1;
+
+	src.create(height, width, CV_8UC4);
+
+	// create a bitmap
+	hbwindow = CreateCompatibleBitmap(hwindowDC, width, height);
+	bi.biSize = sizeof(BITMAPINFOHEADER);    //http://msdn.microsoft.com/en-us/library/windows/window/dd183402%28v=vs.85%29.aspx
+	bi.biWidth = width;
+	bi.biHeight = -height;  //this is the line that makes it draw upside down or not
+	bi.biPlanes = 1;
+	bi.biBitCount = 32;
+	bi.biCompression = BI_RGB;
+	bi.biSizeImage = 0;
+	bi.biXPelsPerMeter = 0;
+	bi.biYPelsPerMeter = 0;
+	bi.biClrUsed = 0;
+	bi.biClrImportant = 0;
+
+	// use the previously created device context with the bitmap
+	SelectObject(hwindowCompatibleDC, hbwindow);
+	// copy from the window device context to the bitmap device context
+	StretchBlt(hwindowCompatibleDC, 0, 0, width, height, hwindowDC, 0, 0, srcwidth, srcheight, SRCCOPY); //change SRCCOPY to NOTSRCCOPY for wacky colors !
+	GetDIBits(hwindowCompatibleDC, hbwindow, 0, height, src.data, (BITMAPINFO*)& bi, DIB_RGB_COLORS);  //copy from hwindowCompatibleDC to hbwindow
+
+	// avoid memory leak
+	DeleteObject(hbwindow);
+	DeleteDC(hwindowCompatibleDC);
+	::ReleaseDC(hwnd, hwindowDC);
+
+	return src;
+}
+
+void CPrototypeforPCDlg::OnEnChangeEdit2()
+{
+	// TODO:  RICHEDIT 컨트롤인 경우, 이 컨트롤은
+	// CDialogEx::OnInitDialog() 함수를 재지정 
+	//하고 마스크에 OR 연산하여 설정된 ENM_CHANGE 플래그를 지정하여 CRichEditCtrl().SetEventMask()를 호출하지 않으면
+	// 이 알림 메시지를 보내지 않습니다.
+
+	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CPrototypeforPCDlg::OnBnClickedDesktopWindowApply()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	UpdateData(TRUE);
+	m_sourceDesktopWindow = 1;
+	m_sourceImage = m_sourceCamera = m_sourceVideo = 0;
+	UpdateData(FALSE);
+}
+
+
+void CPrototypeforPCDlg::OnBnClickedSourceCamera()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_sourceCamera = TRUE;
+	m_sourceDesktopWindow = FALSE;
+	m_sourceImage = FALSE;
+	m_sourceVideo = FALSE;
+	UpdateData(FALSE);
+}
+
+
+void CPrototypeforPCDlg::OnBnClickedSourceImage()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_sourceCamera = 0;
+	m_sourceDesktopWindow = 0;
+	m_sourceImage = 1;
+	m_sourceVideo = 0;
+	UpdateData(FALSE);
+}
+
+
+void CPrototypeforPCDlg::OnBnClickedSourceVideo()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_sourceCamera = 0;
+	m_sourceDesktopWindow = 0;
+	m_sourceImage = 0;
+	m_sourceVideo = 1;
+	UpdateData(FALSE);
 }
