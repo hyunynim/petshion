@@ -52,3 +52,8 @@ Prototype(for_PC)/.vs/Prototype(for_PC)/v15/.suo
 *.aps
 *.aps
 *.mp4
+*.zip
+*.xml
+*.lnk
+x64/Release/mmod_sync
+x64/Release/mmod_sync_
